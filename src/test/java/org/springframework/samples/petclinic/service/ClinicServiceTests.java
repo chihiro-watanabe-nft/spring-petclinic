@@ -111,6 +111,15 @@ class ClinicServiceTests {
 	}
 
 	@Test
+	void shouldFindOwnersByCityPrefix() {
+		Page<Owner> owners = this.owners.findByLastNameStartingWithAndCityStartingWith("", "Mad", pageable);
+		assertThat(owners).hasSize(4);
+
+		owners = this.owners.findByLastNameStartingWithAndCityStartingWith("", "ison", pageable);
+		assertThat(owners).isEmpty();
+	}
+
+	@Test
 	void shouldFindSingleOwnerWithPet() {
 		Optional<Owner> optionalOwner = this.owners.findById(1);
 		assertThat(optionalOwner).isPresent();

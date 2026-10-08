@@ -257,6 +257,29 @@ class OwnerControllerTests {
 	}
 
 	@Test
+	void processFindFormWithWhitespaceOnlyCityReturnsAllOwners() throws Exception {
+		Page<Owner> tasks = new PageImpl<>(List.of(george(), new Owner()));
+		when(this.owners.findByLastNameStartingWithAndCityStartingWith(eq(""), eq(""), any(Pageable.class)))
+			.thenReturn(tasks);
+
+		mockMvc.perform(get("/owners?page=1").param("city", "   "))
+			.andExpect(status().isOk())
+			.andExpect(view().name("owners/ownersList"));
+
+		verify(this.owners).findByLastNameStartingWithAndCityStartingWith(eq(""), eq(""), any(Pageable.class));
+	}
+
+	@Test
+	void processFindFormRedirectsOutOfBoundsPageForCityOnly() throws Exception {
+		when(this.owners.findByLastNameStartingWithAndCityStartingWith(eq(""), eq("Madison"), any(Pageable.class)))
+			.thenReturn(new PageImpl<>(List.of(george())));
+
+		mockMvc.perform(get("/owners").param("page", "2").param("city", "Madison"))
+			.andExpect(status().is3xxRedirection())
+			.andExpect(redirectedUrl("/owners?page=1&city=Madison"));
+	}
+
+	@Test
 	void processFindFormByLastNameAndCity() throws Exception {
 		Page<Owner> tasks = new PageImpl<>(List.of(george()));
 		when(this.owners.findByLastNameStartingWithAndCityStartingWith(eq("Franklin"), eq("Madison"),
