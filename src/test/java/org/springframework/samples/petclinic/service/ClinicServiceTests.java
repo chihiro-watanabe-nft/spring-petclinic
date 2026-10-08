@@ -88,10 +88,34 @@ class ClinicServiceTests {
 
 	@Test
 	void shouldFindOwnersByLastName() {
-		Page<Owner> owners = this.owners.findByLastNameStartingWith("Davis", pageable);
+		Page<Owner> owners = this.owners.findByLastNameStartingWithAndCityStartingWith("Davis", "", pageable);
 		assertThat(owners).hasSize(2);
 
-		owners = this.owners.findByLastNameStartingWith("Daviss", pageable);
+		owners = this.owners.findByLastNameStartingWithAndCityStartingWith("Daviss", "", pageable);
+		assertThat(owners).isEmpty();
+	}
+
+	@Test
+	void shouldFindOwnersByCityAndLastName() {
+		Page<Owner> owners = this.owners.findByLastNameStartingWithAndCityStartingWith("", "Madison", pageable);
+		assertThat(owners).hasSize(4);
+
+		owners = this.owners.findByLastNameStartingWithAndCityStartingWith("Davis", "Windsor", pageable);
+		assertThat(owners).hasSize(1);
+
+		owners = this.owners.findByLastNameStartingWithAndCityStartingWith("Davis", "Madison", pageable);
+		assertThat(owners).isEmpty();
+
+		owners = this.owners.findByLastNameStartingWithAndCityStartingWith("", "", pageable);
+		assertThat(owners).hasSize(10);
+	}
+
+	@Test
+	void shouldFindOwnersByCityPrefix() {
+		Page<Owner> owners = this.owners.findByLastNameStartingWithAndCityStartingWith("", "Mad", pageable);
+		assertThat(owners).hasSize(4);
+
+		owners = this.owners.findByLastNameStartingWithAndCityStartingWith("", "ison", pageable);
 		assertThat(owners).isEmpty();
 	}
 
@@ -109,7 +133,7 @@ class ClinicServiceTests {
 	@Test
 	@Transactional
 	void shouldInsertOwner() {
-		Page<Owner> owners = this.owners.findByLastNameStartingWith("Schultz", pageable);
+		Page<Owner> owners = this.owners.findByLastNameStartingWithAndCityStartingWith("Schultz", "", pageable);
 		int found = (int) owners.getTotalElements();
 
 		Owner owner = new Owner();
@@ -121,7 +145,7 @@ class ClinicServiceTests {
 		this.owners.save(owner);
 		assertThat(owner.getId()).isNotZero();
 
-		owners = this.owners.findByLastNameStartingWith("Schultz", pageable);
+		owners = this.owners.findByLastNameStartingWithAndCityStartingWith("Schultz", "", pageable);
 		assertThat(owners.getTotalElements()).isEqualTo(found + 1);
 	}
 
